@@ -21,7 +21,7 @@ node index.js
 ```
 
 ## Fun with Data
-Mongo is the only database with a script written to search seeded data. It takes `name` and `sex` as search parameters and returns every object that contains the `name` and `sex inputted.
+Mongo is the only database with a script written to search seeded data. It takes `name` and `sex` as search parameters and returns every object that contains the `name` and `sex` inputted.
 ```
 ➜  mongo git:(master) ✗ node fun.js
 prompt: name:  Tony
