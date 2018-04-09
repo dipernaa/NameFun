@@ -4,7 +4,7 @@ const nameSchema = new mongoose.Schema({
   amount: Number,
   name: String,
   sex: String,
-  year: String
+  year: Number
 });
 
 const Name = mongoose.model('Name', nameSchema);
