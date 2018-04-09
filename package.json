@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "dotenv": "^5.0.1",
+    "mongoose": "^5.0.13",
+    "mysql": "^2.15.0",
+    "prompt": "^1.0.0"
+  },
+  "name": "nameFun",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT"
+}
