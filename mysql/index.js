@@ -13,54 +13,33 @@ const connection = mysql.createConnection({
   timezone: 'UTC'
 });
 
-
 const setupDatabase = (connection) => (
   query(connection, { sql: queries.database.drop })
-    .catch(() => {
+    .catch((err) => {
       console.log('initial setup of database');
     })
     .then(() => query(connection, { sql: queries.database.create }))
     .then(() => query(connection, { sql: queries.database.use }))
     .then(() => query(connection, { sql: queries.tables.names }))
-    .then(() => query(connection, { sql: queries.tables.nameAmounts }))
     .then(() => {
       console.log('database successfully setup');
     })
 );
 
 const insertData = (nameLines, year) => {
-  const finalNamePromise = nameLines.reduce((previousNamePromise, currentLine) => (
-    previousNamePromise
-      .then(() => {
-        const [name, sex, amount] = currentLine.split(',');
+  const namesToInsert = nameLines.map((currentLine) => {
+    const [name, sex, amount] = currentLine.split(',');
 
-        return query(connection, {
-          sql:
-            `INSERT INTO ${tables.names.name}
-            (name, sex)
-            VALUES (?, ?)`,
-          values: [name, sex]
-        })
-        .catch(() => { /* Duplicate Name */ })
-        .then(() => (
-          query(connection, {
-            sql:
-              `INSERT INTO ${tables.nameAmounts.name}
-              (name_id, amount, year)
-              VALUES ((
-                SELECT id
-                FROM \`${tables.names.name}\`
-                WHERE name = ?
-                AND sex = ?
-                LIMIT 1
-              ), ?, ?)`,
-            values: [name, sex, amount, year]
-          })
-        ));
-      })
-  ), Promise.resolve());
+    return [amount, name, sex, year];
+  });
 
-  return finalNamePromise;
+  return query(connection, {
+    sql:
+      `INSERT INTO ${tables.names.name}
+      (amount, name, sex, year)
+      VALUES ?`,
+    values: [namesToInsert]
+  });
 };
 
 setupDatabase(connection)

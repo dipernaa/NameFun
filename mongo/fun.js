@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
-const prompt = require('prompt');
 const mongoose = require('mongoose');
 const { Name } = require('./models');
+const { getNameFromPrompt, runAnalysis } = require('../util');
 
 dotenv.load();
 mongoose.connect(`mongodb://${process.env.MONGO_DB_HOST}:${process.env.MONGO_DB_PORT}/nameFun`);
@@ -18,25 +18,9 @@ const getNamesByName = (name, sex) => (
   })
 );
 
-const getNameFromPrompt = () => (
-  new Promise((resolve, reject) => {
-    prompt.get(['name', 'sex'], (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-
-      resolve(results);
-    });
-  })
-);
-
-prompt.start();
-
 getNameFromPrompt()
   .then((promptResults) => getNamesByName(promptResults.name, promptResults.sex))
-  .then((results) => {
-    console.log(results);
-  })
+  .then(runAnalysis)
   .then(() => {
     console.log('All Done!');
     process.exit(0);

@@ -1,6 +1,21 @@
 const fs = require('fs');
 const path = require('path');
+const prompt = require('prompt');
 const directoryPath = path.join(__dirname, '/names');
+
+const getNameFromPrompt = () => (
+  new Promise((resolve, reject) => {
+    prompt.start();
+
+    prompt.get(['name', 'sex'], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve(results);
+    });
+  })
+);
 
 const readdir = (directoryPath) => (
   new Promise((resolve, reject) => {
@@ -29,6 +44,27 @@ const readFile = (filePath) => (
   })
 );
 
+const runAnalysis = (results = []) => {
+  let total = 0;
+  const highest = {
+    amount: 0,
+    year: 0
+  };
+
+  results.forEach((currentRow) => {
+    total += currentRow.amount;
+
+    if (currentRow.amount > highest.amount) {
+      highest.amount = currentRow.amount;
+      highest.year = currentRow.year;
+    }
+  });
+
+  console.log('\n');
+  console.log('Total:', total);
+  console.log('Most Occurances in a Year:', `${highest.amount} in ${highest.year}`);
+};
+
 const saveData = (saveFn) => (
   readdir(directoryPath)
     .then((files) => {
@@ -36,6 +72,7 @@ const saveData = (saveFn) => (
       return Promise.all(filePromises);
     })
     .then((fileResults) => {
+      const startTime = Date.now();
       const finalPromise = fileResults.reduce((previousPromise, currentFileResult) => (
         previousPromise
           .then(() => {
@@ -51,12 +88,17 @@ const saveData = (saveFn) => (
           })
       ), Promise.resolve());
 
-      return finalPromise;
+      return finalPromise
+        .then(() => {
+          console.log('Total Time to Insert:', `${(Date.now() - startTime) / 1000} s`);
+        });
     })
 );
 
 module.exports = {
+  getNameFromPrompt,
   readdir,
   readFile,
+  runAnalysis,
   saveData
 };
